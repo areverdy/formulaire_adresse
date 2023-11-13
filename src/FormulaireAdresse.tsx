@@ -1,22 +1,40 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { useDebounce } from 'usehooks-ts'
 
 function FormulaireAdresse(){
+
     const [saisieVille, setVille]= useState<string>("")
+    const [propositions, setPropositions] = useState<string[]>([])
+    const rechercheadresse = useDebounce(saisieVille, 1000)
 
     const handleChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => { setVille(e.target.value) },
         [saisieVille]
     )
 
+    const handleClickProposition = useCallback((propal: string) => {
+        setVille(propal)
+    }, [])
+
     useEffect(() => {
         const getData = async () => {
             console.log('saisie', saisieVille)
-            const response = await fetch("https://api-adresse.data.gouv.fr/search/?q=" + saisieVille)
+            const response = await fetch("https://api-adresse.data.gouv.fr/search/?q=" + rechercheadresse)
             const data = await response.json()
-            console.log('data', data.features.map( (adresse: any) => adresse.properties.label))
+            const propositions = data.features.map( (adresse: any) => adresse.properties.label) 
+            console.log('data', propositions)
+            setPropositions(propositions)
         }
         getData()
-    }, [saisieVille])
+    }, [rechercheadresse])
+
+    useEffect(() => {
+        console.log("effect propales", propositions);
+        if(propositions.length > 0 && propositions[0] === saisieVille){
+            setPropositions([])
+        }
+    }, [propositions])
 
     return (
         <div>
@@ -25,11 +43,18 @@ function FormulaireAdresse(){
                     type="text"
                     placeholder="Saisir votre adresse"
                     onChange={handleChange}
+                    value={saisieVille}
                 />
             </div>
             <div>
                 <div>Adresse : {saisieVille}</div>
-                {/* <input /> {handleChange}>saisieVille</input></> */}
+                <div>
+                    {propositions.map( (proposition, key) => (
+                        <li key={key} onClick={() => handleClickProposition(proposition)}>
+                            {proposition}
+                        </li>
+                    ))}
+                </div>
             </div>
 
         </div>
