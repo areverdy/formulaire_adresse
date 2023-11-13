@@ -1,29 +1,13 @@
 import { useCallback, useState } from 'react'
-
-
 import './App.css'
+import FormulaireAdresse from './FormulaireAdresse'
 
 function App() {
 
   return (
-    <div>
-                  <input 
-                  type="text" 
-                  placeholder="Saisir votre adresse"
-      
-              />
-    </div>
+    <FormulaireAdresse />
   )
 }
 
 export default App
 
-
-
-
-const Formulaire =() => {
-  const [ville, setVille] = useState<string[]>([])
-
-
-
-}
